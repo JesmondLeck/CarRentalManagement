@@ -1,0 +1,68 @@
+﻿@page "/bookings"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+
+<h3 class="card-title">Car Bookings</h3>
+@if (Bookings == null)
+{
+    <div class="alert alert-info">Loading Bookings...</div>
+}
+else
+{
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>Booking Id</th>
+                <th>Customer License</th>
+                <th>Date</th>
+                <th>Duration in days</th>
+                <th>Plate Number</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in Bookings)
+            {
+            <tr>
+                <td>@booking.Id</td>
+                <td>@booking.Customer.DrivingLicense</td>
+                <td>@booking.DateCreated.Date.ToString("dd MMMM yyyy")</td>
+                <td>@((booking.DateIn - booking.DateOut).TotalDays.ToString())</td>
+                <td>@booking.Vehicle.LicensePlateNumber</td>
+                <td>
+                <a href="/bookings/view/@booking.Id" class="btn btn-primary">
+                    <span class="oi oi-book"></span>
+                </a>
+                <a href="/bookings/edit/@booking.Id" class="btn btn-warning">
+                    <span class="oi oi-pencil"></span>
+                </a>
+                <button class="btn btn-danger" @onclick="@(()=>Delete(booking.Id))">
+                    <span class="oi oi-delete"></span>
+                </button>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+}
+
+@code {
+    private List<Booking> Bookings;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Bookings = await _client.GetFromJsonAsync<List<Booking>>($"{Endpoints.BookingsEndpoint}");
+    }
+
+    async Task Delete(int bookingId)
+    {
+        var booking = Bookings.First(q => q.Id == bookingId);
+        var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {booking.Id}?");
+        if (confirm)
+        {
+            await _client.DeleteAsync($"{Endpoints.BookingsEndpoint}/{bookingId}");
+            await OnInitializedAsync();
+        }
+    }
+}

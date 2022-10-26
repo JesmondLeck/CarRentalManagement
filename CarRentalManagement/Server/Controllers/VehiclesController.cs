@@ -33,10 +33,10 @@ namespace CarRentalManagement.Server.Controllers
         //Refactored
         //public async Task<ActionResult<IEnumerable<Vehicle>>> GetVehicles()
         public async Task<ActionResult<IEnumerable<Vehicle>>> GetVehicles()
-        {   
+        {
             //Refactored
             //return await _context.Vehicles.ToListAsync();
-            var vehicles = await _unitOfWork.Vehicles.GetAll();
+            var vehicles = await _unitOfWork.Vehicles.GetAll(includes: q => q.Include(x => x.Make).Include(x => x.Model).Include(x => x.Colour));
             return Ok(vehicles);
         }
 
