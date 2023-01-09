@@ -4,6 +4,14 @@
 @attribute [Authorize]
 
 <h3 class="card-title">Car Vehicles</h3>
+
+<a href="/vehicles/create" class="btn btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New Vehicle
+</a>
+<br />
+<br />
+
 @if (Vehicles == null)
 {
     <div class="alert alert-info">Loading Vehicles...</div>

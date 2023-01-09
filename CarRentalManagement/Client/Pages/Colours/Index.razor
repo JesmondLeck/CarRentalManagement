@@ -1,9 +1,19 @@
 ﻿@page "/colours"
 @inject HttpClient _client
+@inject HttpInterceptorService _interceptor
+@implements IDisposable
 @inject IJSRuntime js
 @attribute [Authorize]
 
 <h3 class="card-title">Car Colours</h3>
+
+<a href="/colours/create" class="btn btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New Colour
+</a>
+<br />
+<br />
+
 @if (Colours == null)
 {
     <div class="alert alert-info">Loading Colours...</div>
@@ -44,6 +54,7 @@ else
 
     protected async override Task OnInitializedAsync()
     {
+        _interceptor.MonitorEvent();
         Colours = await _client.GetFromJsonAsync<List<Colour>>($"{Endpoints.ColoursEndpoint}");
     }
 
@@ -56,5 +67,10 @@ else
             await _client.DeleteAsync($"{Endpoints.ColoursEndpoint}/{colourId}");
             await OnInitializedAsync();
         }
+    }
+
+    public void Dispose()
+    {
+        _interceptor.DisposeEvent();
     }
 }
